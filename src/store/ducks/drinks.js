@@ -1,8 +1,9 @@
 import { createActions, createReducer } from 'reduxsauce';
 
 const { Types, Creators } = createActions({
+  searchRequest: ['drink'],
   drinksRequest: ['category'],
-  drinksSuccess: ['data'],
+  drinksSuccess: ['data', 'category'],
   requestFailure: null,
 });
 
@@ -11,16 +12,19 @@ export default Creators;
 
 const INITIAL_STATE = {
   data: [],
+  category: null,
   loading: false,
   error: false,
 };
 
 export const reducer = createReducer(INITIAL_STATE, {
+  [Types.SEARCH_REQUEST]: state => ({ ...state, loading: true }),
   [Types.DRINKS_REQUEST]: state => ({ ...state, loading: true }),
   [Types.DRINKS_SUCCESS]: (state, action) => ({
     ...state,
-    data: [...state.data, action.data],
+    data: [action.data],
+    category: action.category,
     loading: false,
   }),
-  [Types.DRINKS_REQUEST]: state => ({ ...state, loading: false, error: true }),
+  [Types.REQUEST_FAILURE]: state => ({ ...state, loading: false, error: true }),
 });

@@ -1,46 +1,99 @@
-import React, { Component } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import React, { Component, Fragment } from 'react';
+import {
+  View, Text, FlatList, Image,
+} from 'react-native';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import LinearGradient from 'react-native-linear-gradient';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { DetailsTypes } from '../../store/ducks/details';
+import { DrinksTypes } from '../../store/ducks/drinks';
 import styles from './styles';
-import DrinksActions from '../../store/ducks/drinks';
+import Header from '../../components/Header';
+import { colors } from '../../style';
 
 class Drinks extends Component {
-  componentDidMount() {}
+  search = (text) => {
+    const { searchRequest } = this.props;
 
-  categorySelected = ({ strCategory }) => {
-    const { drinksRequest } = this.props;
-
-    drinksRequest(strCategory);
+    if (!_.isEmpty(text)) {
+      searchRequest(text);
+    }
   };
 
-  renderItem = ({ item }) => {
-    console.tron.log(item);
-    return (
-      <TouchableOpacity onPress={() => this.categorySelected(item)} style={styles.flatlist}>
-        <Text style={styles.text}>{item.strDrink}</Text>
-      </TouchableOpacity>
-    );
+  drinkSelected = ({ idDrink }) => {
+    const { detailsRequest } = this.props;
+    detailsRequest(idDrink);
   };
+
+  renderItem = ({ item }) => (
+    <TouchableOpacity onPress={() => this.drinkSelected(item)} style={styles.flatlist}>
+      <View style={styles.flatlistImage}>
+        <Image style={styles.image} source={{ uri: item.strDrinkThumb }} />
+      </View>
+      <Text style={styles.text}>{item.strDrink}</Text>
+    </TouchableOpacity>
+  );
 
   render() {
-    const { data } = this.props.drinks;
+    const {
+      drinks: { data, category },
+      navigation,
+    } = this.props;
+
+    const search = navigation.getParam('search');
+
+    let description = category;
+    description = !_.isEmpty(description) ? description.replace(/[_]/g, ' ') : null;
 
     return (
-      <View style={styles.container}>
-        <FlatList
-          keyExtractor={(item, index) => String(index)}
-          data={data[0]}
-          renderItem={this.renderItem}
-          numColumns={2}
+      <Fragment>
+        <Header
+          control
+          onPress={() => navigation.pop()}
+          autoFocus={search}
+          onChangeText={text => this.search(text)}
+          title="Drinks"
+          description={description}
         />
-      </View>
+        <LinearGradient
+          style={styles.container}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          colors={colors.gradient}
+        >
+          <View style={styles.flatlistView}>
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              keyExtractor={item => String(item.idDrink)}
+              data={data[0]}
+              renderItem={this.renderItem}
+            />
+          </View>
+        </LinearGradient>
+      </Fragment>
     );
   }
 }
 
-const mapDispatchToProps = dispatch => bindActionCreators(DrinksActions, dispatch);
+Drinks.propTypes = {
+  drinks: PropTypes.shape({
+    data: PropTypes.array,
+    category: PropTypes.string,
+  }).isRequired,
+  searchRequest: PropTypes.func.isRequired,
+  detailsRequest: PropTypes.func.isRequired,
+  navigation: PropTypes.shape({
+    getParam: PropTypes.func,
+    pop: PropTypes.func,
+  }).isRequired,
+};
+
+const mapDispatchToProps = dispatch => ({
+  detailsRequest: drink => dispatch({ type: DetailsTypes.DETAILS_REQUEST, drink }),
+  searchRequest: drink => dispatch({ type: DrinksTypes.SEARCH_REQUEST, drink }),
+});
 
 const mapStateToProps = state => ({
   drinks: state.drinks,

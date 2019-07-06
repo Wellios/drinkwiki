@@ -3,12 +3,10 @@ import DrinksActions from '../ducks/drinks';
 import api from '../../services/api';
 import { navigate } from '../../services/navigation';
 
-export default function* fetchDrinks({ category }) {
+export default function* fetchSearch({ drink }) {
   try {
-    const { data } = yield call(api.get, `filter.php?c=${category}`);
-    yield put(DrinksActions.drinksSuccess(data.drinks, category));
-
-    navigate('Drinks');
+    const { data } = yield call(api.get, `search.php?s=${drink}`);
+    yield put(DrinksActions.drinksSuccess(data.drinks));
   } catch (err) {
     yield put(DrinksActions.requestFailure());
   }

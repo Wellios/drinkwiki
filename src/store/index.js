@@ -16,7 +16,7 @@ const composer = __DEV__
     applyMiddleware(...middlewares),
     Reactotron.createEnhancer(),
   )
-  : applyMiddleware(...middlewares);
+  : compose(applyMiddleware(...middlewares));
 
 export const store = createStore(rootReducer, composer);
 

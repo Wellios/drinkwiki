@@ -1,54 +1,81 @@
-import React, { Component } from 'react';
-import {
-  View, Text, FlatList, Image,
-} from 'react-native';
+import React, { Component, Fragment } from 'react';
+import { View, Text, FlatList } from 'react-native';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import LinearGradient from 'react-native-linear-gradient';
+import PropTypes from 'prop-types';
 import styles from './styles';
-import CategoriesActions from '../../store/ducks/categories';
-import drinksRequest from '../../store/ducks/drinks';
+import { CategoriesTypes } from '../../store/ducks/categories';
+import { DrinksTypes } from '../../store/ducks/drinks';
+import { colors } from '../../style';
+import Header from '../../components/Header';
+import { navigate } from '../../services/navigation';
 
 class Categories extends Component {
   componentDidMount() {
     const { categoriesRequest } = this.props;
 
-    console.tron.log('PROPS', this.props);
     categoriesRequest();
   }
 
   categorySelected = ({ strCategory }) => {
     const { drinksRequest } = this.props;
+    const category = strCategory.replace(/[ ]/g, '_');
 
-    drinksRequest(strCategory);
+    drinksRequest(category);
   };
 
-  renderItem = ({ item }) => {
-    console.tron.log(item);
-    return (
-      <TouchableOpacity onPress={() => this.categorySelected(item)} style={styles.flatlist}>
-        <Text style={styles.text}>{item.strCategory}</Text>
-      </TouchableOpacity>
-    );
-  };
+  renderItem = ({ item }) => (
+    <TouchableOpacity onPress={() => this.categorySelected(item)} style={styles.flatlist}>
+      <Text style={styles.text}>{item.strCategory}</Text>
+    </TouchableOpacity>
+  );
 
   render() {
-    const { data } = this.props.categories;
+    const {
+      categories: { data },
+    } = this.props;
 
     return (
-      <View style={styles.container}>
-        <FlatList
-          keyExtractor={(item, index) => String(index)}
-          data={data[0]}
-          renderItem={this.renderItem}
-          numColumns={2}
+      <Fragment>
+        <Header
+          onFocus={() => navigate('Drinks', { search: true })}
+          title="Categories"
+          description="Choose a Category"
         />
-      </View>
+        <LinearGradient
+          style={styles.container}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          colors={colors.gradient}
+        >
+          <View style={styles.flatlistView}>
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              keyExtractor={(item, index) => String(index)}
+              data={data[0]}
+              renderItem={this.renderItem}
+            />
+          </View>
+        </LinearGradient>
+      </Fragment>
     );
   }
 }
 
-const mapDispatchToProps = dispatch => bindActionCreators(CategoriesActions, dispatch);
+Categories.propTypes = {
+  categories: PropTypes.shape({
+    data: PropTypes.array,
+  }).isRequired,
+  categoriesRequest: PropTypes.func.isRequired,
+  drinksRequest: PropTypes.func.isRequired,
+};
+
+const mapDispatchToProps = dispatch => ({
+  categoriesRequest: () => dispatch({ type: CategoriesTypes.CATEGORIES_REQUEST }),
+  drinksRequest: category => dispatch({ type: DrinksTypes.DRINKS_REQUEST, category }),
+  searchRequest: drink => dispatch({ type: DrinksTypes.SEARCH_REQUEST, drink }),
+});
 
 const mapStateToProps = state => ({
   categories: state.categories,

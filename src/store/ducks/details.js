@@ -10,7 +10,7 @@ export const DetailsTypes = Types;
 export default Creators;
 
 const INITIAL_STATE = {
-  data: [],
+  data: null,
   loading: false,
   error: false,
 };
@@ -19,8 +19,8 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.DETAILS_REQUEST]: state => ({ ...state, loading: true }),
   [Types.DETAILS_SUCCESS]: (state, action) => ({
     ...state,
-    data: [...state.data, action.data],
+    data: action.data,
     loading: false,
   }),
-  [Types.DETAILS_REQUEST]: state => ({ ...state, loading: false, error: true }),
+  [Types.REQUEST_FAILURE]: state => ({ ...state, loading: false, error: true }),
 });

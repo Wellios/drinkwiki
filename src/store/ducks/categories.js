@@ -19,8 +19,8 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.CATEGORIES_REQUEST]: state => ({ ...state, loading: true }),
   [Types.CATEGORIES_SUCCESS]: (state, action) => ({
     ...state,
-    data: [...state.data, action.data],
+    data: [action.data],
     loading: false,
   }),
-  [Types.CATEGORIES_REQUEST]: state => ({ ...state, loading: false, error: true }),
+  [Types.REQUEST_FAILURE]: state => ({ ...state, loading: false, error: true }),
 });

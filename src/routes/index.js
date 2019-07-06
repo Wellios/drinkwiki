@@ -1,19 +1,15 @@
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
-import Categories from '../screens/Categories';
-import Drinks from '../screens/Drinks';
+import { AppStack } from './AppStack';
 
 export const Routes = createAppContainer(
   createSwitchNavigator(
     {
-      Categories: {
-        screen: Categories,
-      },
-      Drinks: {
-        screen: Drinks,
+      Main: {
+        screen: AppStack,
       },
     },
     {
-      initialRouteName: 'Categories',
+      initialRouteName: 'Main',
     },
   ),
 );
